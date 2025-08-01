@@ -1,15 +1,20 @@
-# visualizer
+# AudioVisualizer
 Visualizador WPF reactivo a Audio (FFT) y MIDI con efectos Shader (Glow + Distortion).
 
 ## ✅ Características
-- Análisis FFT en tiempo real usando NAudio.
-- Soporte MIDI (notas → formas dinámicas).
-- Efectos gráficos avanzados con Pixel Shaders:
-  - Glow
-  - Distortion (wave)
-- UI simple (Start Audio, Connect MIDI).
+- FFT con NAudio
+- Soporte MIDI
+- Shaders avanzados en WPF: Glow y Distorsión
+- Código listo para compilar
 
-## ▶️ Ejecución
-1. Instala dependencias:
-   ```powershell
-   dotnet add package NAudio --version 2.2.1
+## ▶️ Cómo usar
+1. Abre el proyecto en Visual Studio o usa `dotnet build`.
+2. Ejecuta y conecta audio/MIDI desde la interfaz.
+
+## 🔧 Recompilar shaders (opcional)
+Si editas los .ps en Shaders/, usa:
+```
+compile_shaders.ps1
+```
+(Se necesita Windows SDK para `fxc.exe`)
+

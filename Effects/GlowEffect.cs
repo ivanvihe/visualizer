@@ -9,13 +9,25 @@ namespace AudioVisualizer.Effects
         public static readonly DependencyProperty InputProperty =
             RegisterPixelShaderSamplerProperty("Input", typeof(GlowEffect), 0);
 
-sampler2D input : register(s0);
-float amount : register(c0);
+        public static readonly DependencyProperty AmountProperty =
+            DependencyProperty.Register("Amount", typeof(double), typeof(GlowEffect),
+                new UIPropertyMetadata(1.0, PixelShaderConstantCallback(0)));
 
-float4 main(float2 uv : TEXCOORD) : COLOR
-{
-    float4 color = tex2D(input, uv);
-    float glow = (color.r + color.g + color.b) / 3.0;
-    glow = pow(glow, 2.0) * amount;
-    return color + float4(glow, glow, glow, 0);
+        public GlowEffect()
+        {
+            PixelShader = new PixelShader
+            {
+                UriSource = new Uri("pack://application:,,,/AudioVisualizer;component/Shaders/GlowEffect.ps")
+            };
+
+            UpdateShaderValue(InputProperty);
+            UpdateShaderValue(AmountProperty);
+        }
+
+        public double Amount
+        {
+            get => (double)GetValue(AmountProperty);
+            set => SetValue(AmountProperty, value);
+        }
+    }
 }
