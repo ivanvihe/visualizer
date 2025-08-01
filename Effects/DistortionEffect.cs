@@ -1,27 +1,13 @@
 using System;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Effects;
 
 namespace AudioVisualizer.Effects
 {
     public class DistortionEffect : ShaderEffect
     {
-        private static PixelShader _shader = new PixelShader
-        {
-            UriSource = new Uri("/Shaders/DistortionEffect.ps", UriKind.Relative)
-        };
-
-        public DistortionEffect()
-        {
-            PixelShader = _shader;
-            UpdateShaderValue(InputProperty);
-            UpdateShaderValue(TimeProperty);
-            UpdateShaderValue(IntensityProperty);
-        }
-
         public static readonly DependencyProperty InputProperty =
-            ShaderEffect.RegisterPixelShaderSamplerProperty("Input", typeof(DistortionEffect), 0);
+            RegisterPixelShaderSamplerProperty("Input", typeof(DistortionEffect), 0);
 
         public static readonly DependencyProperty TimeProperty =
             DependencyProperty.Register("Time", typeof(double), typeof(DistortionEffect),
@@ -31,10 +17,16 @@ namespace AudioVisualizer.Effects
             DependencyProperty.Register("Intensity", typeof(double), typeof(DistortionEffect),
                 new UIPropertyMetadata(0.5, PixelShaderConstantCallback(1)));
 
-        public Brush Input
+        public DistortionEffect()
         {
-            get => (Brush)GetValue(InputProperty);
-            set => SetValue(InputProperty, value);
+            PixelShader = new PixelShader
+            {
+                UriSource = new Uri("pack://application:,,,/AudioVisualizer;component/Shaders/DistortionEffect.ps")
+            };
+
+            UpdateShaderValue(InputProperty);
+            UpdateShaderValue(TimeProperty);
+            UpdateShaderValue(IntensityProperty);
         }
 
         public double Time

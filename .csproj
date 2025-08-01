@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Librerías necesarias -->
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Marcar shaders compilados (.ps) como recursos WPF -->
+    <Resource Include="Shaders\GlowEffect.ps" />
+    <Resource Include="Shaders\DistortionEffect.ps" />
+  </ItemGroup>
+
+</Project>
