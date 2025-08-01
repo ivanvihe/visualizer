@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
@@ -15,12 +16,12 @@ namespace AudioVisualizer
         private readonly Canvas canvas;
         private readonly Random random = new Random();
         private readonly List<Shape> activeShapes = new();
-        private MidiIn midiIn;
+        private MidiIn? midiIn;
         private bool isConnectedToMidi = false;
 
         public VisualizerEngine(Canvas canvas)
         {
-            this.canvas = canvas;
+            this.canvas = canvas ?? throw new ArgumentNullException(nameof(canvas));
         }
 
         public void ToggleMidiConnection(Button button)
@@ -53,13 +54,19 @@ namespace AudioVisualizer
                     return;
                 }
             }
+
+            // Si no encontró dispositivos compatibles:
+            MessageBox.Show("No MIDI device found (loopMIDI or virtual).", "MIDI Connection", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
 
         private void DisconnectMidi()
         {
-            midiIn?.Stop();
-            midiIn?.Dispose();
-            midiIn = null;
+            if (midiIn != null)
+            {
+                midiIn.Stop();
+                midiIn.Dispose();
+                midiIn = null;
+            }
             isConnectedToMidi = false;
         }
 
@@ -78,7 +85,10 @@ namespace AudioVisualizer
             double maxHeight = canvas.ActualHeight;
             double barWidth = canvas.ActualWidth / fftData.Length;
 
-            canvas.Children.Clear();
+            // Borrar solo las barras FFT previas
+            var oldBars = canvas.Children.OfType<Rectangle>().ToList();
+            foreach (var bar in oldBars) canvas.Children.Remove(bar);
+
             for (int i = 0; i < fftData.Length; i++)
             {
                 var magnitude = fftData[i] * 500;
