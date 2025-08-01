@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Audio Visualizer" WindowState="Maximized" Background="Black">
     <Grid>
-        <!-- Canvas para Visualización -->
+        <!-- Canvas principal -->
         <Canvas Name="visualCanvas" Background="Black" ClipToBounds="True"/>
         
-        <!-- Panel de control superior -->
+        <!-- Panel de control -->
         <StackPanel Orientation="Horizontal" Background="#80202020" Height="50" VerticalAlignment="Top">
             <Button Name="midiButton" Content="Connect MIDI" Width="120" Margin="10"/>
             <Button Name="audioButton" Content="Start Audio" Width="120" Margin="10"/>

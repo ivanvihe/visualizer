@@ -1,0 +1,5 @@
+bin/
+obj/
+*.ps.cache
+*.user
+*.suo

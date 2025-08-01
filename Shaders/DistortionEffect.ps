@@ -1,0 +1,10 @@
+sampler2D input : register(s0);
+float time : register(c0);
+float intensity : register(c1);
+
+float4 main(float2 uv : TEXCOORD) : COLOR
+{
+    uv.y += sin(uv.x * 10 + time * 5) * 0.02 * intensity;
+    uv.x += cos(uv.y * 10 + time * 5) * 0.02 * intensity;
+    return tex2D(input, uv);
+}
