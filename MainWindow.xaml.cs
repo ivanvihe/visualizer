@@ -1,8 +1,8 @@
 using System;
-using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
-using AudioVisualizer.Effects;
+using NAudio.Midi;
 
 namespace AudioVisualizer
 {
@@ -10,39 +10,30 @@ namespace AudioVisualizer
     {
         private VisualizerEngine visualizerEngine;
         private AudioEngine audioEngine;
-        private DispatcherTimer animationTimer;
-
-        private DistortionEffect distortionEffect;
-        private GlowEffect glowEffect;
-        private double timeValue = 0;
-        private double lastVolume = 0;
         private bool isAudioRunning = false;
 
         public MainWindow()
         {
             InitializeComponent();
+            visualizerEngine = new VisualizerEngine(visualCanvas, tempoLabel, modeComboBox, sensitivitySlider, sizeSlider, autoCycleCheckBox, cycleSpeedSlider, colorPaletteComboBox, rotationSlider, randomShapeTypeCheckBox);
+            audioEngine = new AudioEngine();
+            audioEngine.AudioDataAvailable += visualizerEngine.OnAudioData;
 
-            visualizerEngine = new VisualizerEngine(visualCanvas);
-            audioEngine = new AudioEngine(OnFFTData);
-
-            midiButton.Click += (s, e) => visualizerEngine.ToggleMidiConnection(midiButton);
+            PopulateMidiDevices();
+            connectMidiButton.Click += (s, e) => visualizerEngine.ConnectMidi(midiDeviceComboBox.SelectedIndex, connectMidiButton);
             audioButton.Click += ToggleAudio;
+        }
 
-            // Inicializamos efectos
-            distortionEffect = new DistortionEffect { Intensity = 0.5 };
-            glowEffect = new GlowEffect { Amount = 1.0 };
-
-            visualCanvas.Effect = distortionEffect;
-
-            animationTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
-            animationTimer.Tick += (s, e) =>
+        private void PopulateMidiDevices()
+        {
+            for (int i = 0; i < MidiIn.NumberOfDevices; i++)
             {
-                visualizerEngine.Update();
-                timeValue += 0.016;
-                distortionEffect.Time = timeValue;
-                glowEffect.Amount = Math.Min(3, lastVolume * 3);
-            };
-            animationTimer.Start();
+                midiDeviceComboBox.Items.Add(MidiIn.DeviceInfo(i).ProductName);
+            }
+            if (MidiIn.NumberOfDevices > 0)
+            {
+                midiDeviceComboBox.SelectedIndex = 0;
+            }
         }
 
         private void ToggleAudio(object sender, RoutedEventArgs e)
@@ -51,28 +42,18 @@ namespace AudioVisualizer
             {
                 audioEngine.Stop();
                 audioButton.Content = "Start Audio";
-                isAudioRunning = false;
             }
             else
             {
                 audioEngine.Start();
                 audioButton.Content = "Stop Audio";
-                isAudioRunning = true;
             }
-        }
-
-        private void OnFFTData(float[] fftBuffer)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                visualizerEngine.RenderFFT(fftBuffer);
-                lastVolume = fftBuffer.Average();
-            });
+            isAudioRunning = !isAudioRunning;
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            audioEngine.Stop();
+            audioEngine.Dispose();
             visualizerEngine.Dispose();
             base.OnClosed(e);
         }

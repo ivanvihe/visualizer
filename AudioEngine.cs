@@ -1,67 +1,86 @@
-using System;
 using NAudio.Wave;
 using NAudio.Dsp;
+using System;
 
 namespace AudioVisualizer
 {
-    public class AudioEngine
+    public class AudioDataEventArgs : EventArgs
     {
-        private WasapiLoopbackCapture capture;
-        private readonly Action<float[]> fftCallback;
-        private const int FFT_SIZE = 1024;
-        private readonly Complex[] fftBuffer = new Complex[FFT_SIZE];
-        private int bufferIndex = 0;
+        public float[] WaveformData { get; }
+        public float[] SpectrumData { get; }
+        public AudioDataEventArgs(float[] waveform, float[] spectrum) { WaveformData = waveform; SpectrumData = spectrum; }
+    }
 
-        public AudioEngine(Action<float[]> callback)
-        {
-            fftCallback = callback;
-        }
+    public class AudioEngine : IDisposable
+    {
+        private const int FFT_SIZE = 1024;
+        private const int WAVEFORM_POINTS = 512;
+
+        private WaveInEvent? capture;
+        private Complex[] fftBuffer = new Complex[FFT_SIZE];
+        private float[] waveformBuffer = new float[WAVEFORM_POINTS];
+        private int bufferPos = 0;
+
+        public event EventHandler<AudioDataEventArgs>? AudioDataAvailable;
 
         public void Start()
         {
-            capture = new WasapiLoopbackCapture();
+            if (capture != null) return;
+            capture = new WaveInEvent { WaveFormat = new WaveFormat(44100, 1) };
             capture.DataAvailable += OnDataAvailable;
             capture.StartRecording();
         }
 
         public void Stop()
         {
-            if (capture != null)
+            capture?.StopRecording();
+            capture?.Dispose();
+            capture = null;
+        }
+
+        private void OnDataAvailable(object? sender, WaveInEventArgs e)
+        {
+            for (int i = 0; i < e.BytesRecorded; i += 2)
             {
-                capture.StopRecording();
-                capture.Dispose();
-                capture = null;
+                float sample = BitConverter.ToInt16(e.Buffer, i) / 32768f;
+
+                // FFT buffer
+                fftBuffer[bufferPos].X = sample;
+                fftBuffer[bufferPos].Y = 0;
+
+                // Waveform buffer (simple circular buffer)
+                waveformBuffer[bufferPos % WAVEFORM_POINTS] = sample;
+
+                bufferPos++;
+
+                if (bufferPos >= FFT_SIZE)
+                {
+                    ProcessBuffers();
+                    bufferPos = 0;
+                }
             }
         }
 
-        private void OnDataAvailable(object sender, WaveInEventArgs e)
+        private void ProcessBuffers()
         {
-            var buffer = new float[e.BytesRecorded / 4];
-            Buffer.BlockCopy(e.Buffer, 0, buffer, 0, e.BytesRecorded);
+            // Process FFT
+            var fftBufferCopy = new Complex[FFT_SIZE];
+            Array.Copy(fftBuffer, fftBufferCopy, FFT_SIZE);
+            FastFourierTransform.FFT(true, (int)Math.Log(FFT_SIZE, 2), fftBufferCopy);
+            float[] spectrum = new float[FFT_SIZE / 2];
+            for (int j = 0; j < spectrum.Length; j++)
+                spectrum[j] = (float)Math.Sqrt(fftBufferCopy[j].X * fftBufferCopy[j].X + fftBufferCopy[j].Y * fftBufferCopy[j].Y);
 
-            foreach (var sample in buffer)
-            {
-                fftBuffer[bufferIndex].X = (float)(sample * FastFourierTransform.HannWindow(bufferIndex, FFT_SIZE));
-                fftBuffer[bufferIndex].Y = 0;
-                bufferIndex++;
+            // Prepare waveform data
+            float[] finalWaveform = new float[WAVEFORM_POINTS];
+            Array.Copy(waveformBuffer, finalWaveform, WAVEFORM_POINTS);
 
-                if (bufferIndex >= FFT_SIZE)
-                {
-                    bufferIndex = 0;
-                    var fftCopy = new Complex[FFT_SIZE];
-                    fftBuffer.CopyTo(fftCopy, 0);
+            AudioDataAvailable?.Invoke(this, new AudioDataEventArgs(finalWaveform, spectrum));
+        }
 
-                    FastFourierTransform.FFT(true, (int)Math.Log(FFT_SIZE, 2.0), fftCopy);
-
-                    var magnitude = new float[FFT_SIZE / 2];
-                    for (int i = 0; i < magnitude.Length; i++)
-                    {
-                        magnitude[i] = (float)Math.Sqrt(fftCopy[i].X * fftCopy[i].X + fftCopy[i].Y * fftCopy[i].Y);
-                    }
-
-                    fftCallback(magnitude);
-                }
-            }
+        public void Dispose()
+        {
+            Stop();
         }
     }
 }
