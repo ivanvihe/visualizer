@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
-using NAudio.Midi;
+using AudioVisualizer.Utils;
 
 namespace AudioVisualizer
 {
@@ -10,35 +10,75 @@ namespace AudioVisualizer
     {
         private VisualizerEngine visualizerEngine;
         private AudioEngine audioEngine;
-        private bool isAudioRunning = false;
+        private DispatcherTimer updateTimer;
+        private bool audioRunning = false;
 
         public MainWindow()
         {
             InitializeComponent();
-            visualizerEngine = new VisualizerEngine(visualCanvas, tempoLabel, modeComboBox, sensitivitySlider, sizeSlider, autoCycleCheckBox, cycleSpeedSlider, colorPaletteComboBox, rotationSlider, randomShapeTypeCheckBox);
-            audioEngine = new AudioEngine();
-            audioEngine.AudioDataAvailable += visualizerEngine.OnAudioData;
+            visualizerEngine = new VisualizerEngine(visualCanvas, tempoLabel);
+            audioEngine = new AudioEngine(visualizerEngine.RenderFFT);
 
-            PopulateMidiDevices();
-            connectMidiButton.Click += (s, e) => visualizerEngine.ConnectMidi(midiDeviceComboBox.SelectedIndex, connectMidiButton);
+            midiButton.Click += (s, e) => visualizerEngine.ToggleMidiConnection(midiButton);
             audioButton.Click += ToggleAudio;
-        }
+            swingSlider.ValueChanged += (s, e) =>
+            {
+                swingLabel.Text = $"Swing: {(int)swingSlider.Value}%";
+                visualizerEngine.Swing = swingSlider.Value / 100.0;
+            };
 
-        private void PopulateMidiDevices()
-        {
-            for (int i = 0; i < MidiIn.NumberOfDevices; i++)
+            shapeCircleCheck.Checked += (s, e) => visualizerEngine.EnableShape(ShapeType.Circle, true);
+            shapeCircleCheck.Unchecked += (s, e) => visualizerEngine.EnableShape(ShapeType.Circle, false);
+            shapeRectCheck.Checked += (s, e) => visualizerEngine.EnableShape(ShapeType.Rectangle, true);
+            shapeRectCheck.Unchecked += (s, e) => visualizerEngine.EnableShape(ShapeType.Rectangle, false);
+            shapeTriCheck.Checked += (s, e) => visualizerEngine.EnableShape(ShapeType.Triangle, true);
+            shapeTriCheck.Unchecked += (s, e) => visualizerEngine.EnableShape(ShapeType.Triangle, false);
+            shapeStarCheck.Checked += (s, e) => visualizerEngine.EnableShape(ShapeType.Star, true);
+            shapeStarCheck.Unchecked += (s, e) => visualizerEngine.EnableShape(ShapeType.Star, false);
+
+            densitySlider.ValueChanged += (s, e) =>
             {
-                midiDeviceComboBox.Items.Add(MidiIn.DeviceInfo(i).ProductName);
-            }
-            if (MidiIn.NumberOfDevices > 0)
+                densityLabel.Text = ((int)densitySlider.Value).ToString();
+                visualizerEngine.Density = (int)densitySlider.Value;
+            };
+
+            sizeSlider.ValueChanged += (s, e) =>
             {
-                midiDeviceComboBox.SelectedIndex = 0;
-            }
+                sizeLabel.Text = $"{sizeSlider.Value:F1}x";
+                visualizerEngine.SizeModifier = sizeSlider.Value;
+            };
+
+            volumeSlider.ValueChanged += (s, e) =>
+            {
+                volumeLabel.Text = volumeSlider.Value.ToString("F2");
+                visualizerEngine.VolumeSensitivity = volumeSlider.Value;
+            };
+
+            deformSlider.ValueChanged += (s, e) =>
+            {
+                deformLabel.Text = deformSlider.Value.ToString("F2");
+                visualizerEngine.Deformation = deformSlider.Value;
+            };
+
+            colorSlider.ValueChanged += (s, e) =>
+            {
+                colorLabel.Text = colorSlider.Value.ToString("F2");
+                visualizerEngine.ColorVariation = colorSlider.Value;
+            };
+
+            textureCombo.SelectionChanged += (s, e) =>
+            {
+                visualizerEngine.TextureType = (TextureType)textureCombo.SelectedIndex;
+            };
+
+            updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
+            updateTimer.Tick += (s, e) => visualizerEngine.Update();
+            updateTimer.Start();
         }
 
         private void ToggleAudio(object sender, RoutedEventArgs e)
         {
-            if (isAudioRunning)
+            if (audioRunning)
             {
                 audioEngine.Stop();
                 audioButton.Content = "Start Audio";
@@ -48,14 +88,7 @@ namespace AudioVisualizer
                 audioEngine.Start();
                 audioButton.Content = "Stop Audio";
             }
-            isAudioRunning = !isAudioRunning;
-        }
-
-        protected override void OnClosed(EventArgs e)
-        {
-            audioEngine.Dispose();
-            visualizerEngine.Dispose();
-            base.OnClosed(e);
+            audioRunning = !audioRunning;
         }
     }
 }
