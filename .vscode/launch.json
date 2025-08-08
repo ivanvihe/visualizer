@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         
-
+        {
+            "type": "coreclr",
+            "request": "launch",
+            "name": "Launch AudioVisualizer",
+            "program": "${workspaceFolder}/bin/Debug/net8.0-windows/${input:executableName}.exe",
+            "preLaunchTask": "build"
+        }
+    ],
+    "inputs": [
+        {
+            "type": "promptString",
+            "id": "executableName",
+            "description": "Enter the name of your executable (without .exe)"
+        }
     ]
 }

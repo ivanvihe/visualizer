@@ -24,7 +24,7 @@ namespace AudioVisualizer
         public TextureType TextureType { get; set; }
 
         private Canvas canvas;
-        private Label tempoLabel;
+        private TextBlock tempoLabel;
         private Random rand = new Random();
 
         // store enabled shapes
@@ -36,7 +36,7 @@ namespace AudioVisualizer
             { ShapeType.Star, false }
         };
 
-        public VisualizerEngine(Canvas visualCanvas, Label tempoLbl)
+        public VisualizerEngine(Canvas visualCanvas, TextBlock tempoLbl)
         {
             canvas = visualCanvas;
             tempoLabel = tempoLbl;

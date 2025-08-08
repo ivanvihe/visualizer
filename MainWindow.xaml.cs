@@ -3,6 +3,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using AudioVisualizer.Utils;
+using NAudio.Midi;
+using System.Linq;
+using System.Configuration;
 
 namespace AudioVisualizer
 {
@@ -12,12 +15,18 @@ namespace AudioVisualizer
         private AudioEngine audioEngine;
         private DispatcherTimer updateTimer;
         private bool audioRunning = false;
+        private int selectedMidiDevice = -1;
 
         public MainWindow()
         {
             InitializeComponent();
             visualizerEngine = new VisualizerEngine(visualCanvas, tempoLabel);
             audioEngine = new AudioEngine(visualizerEngine.RenderFFT);
+
+            PopulateMidiDevices();
+            midiDeviceComboBox.SelectionChanged += MidiDeviceComboBox_SelectionChanged;
+
+            
 
             midiButton.Click += (s, e) => visualizerEngine.ToggleMidiConnection(midiButton);
             audioButton.Click += ToggleAudio;
@@ -74,6 +83,24 @@ namespace AudioVisualizer
             updateTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
             updateTimer.Tick += (s, e) => visualizerEngine.Update();
             updateTimer.Start();
+        }
+
+        private void PopulateMidiDevices()
+        {
+            midiDeviceComboBox.Items.Clear();
+            for (int i = 0; i < MidiIn.NumberOfDevices; i++)
+            {
+                midiDeviceComboBox.Items.Add(MidiIn.DeviceInfo(i).ProductName);
+            }
+            if (midiDeviceComboBox.Items.Count > 0)
+            {
+                midiDeviceComboBox.SelectedIndex = 0; // Select the first device by default
+            }
+        }
+
+        private void MidiDeviceComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            selectedMidiDevice = midiDeviceComboBox.SelectedIndex;
         }
 
         private void ToggleAudio(object sender, RoutedEventArgs e)
