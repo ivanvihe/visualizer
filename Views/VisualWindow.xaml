@@ -1,0 +1,60 @@
+<Window x:Class="AudioVisualizer.Views.VisualWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AudioVisualizer.Views"
+        xmlns:controls="clr-namespace:AudioVisualizer.Controls"
+        xmlns:vm="clr-namespace:AudioVisualizer.ViewModels"
+        mc:Ignorable="d"
+        Title="Visualizer" Height="450" Width="800"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        SourceInitialized="Window_SourceInitialized" Closing="Window_Closing"
+        Topmost="{Binding AlwaysOnTop}">
+    <Window.DataContext>
+        <vm:AppViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Border Background="#FF101010" CornerRadius="5" BorderBrush="#FF444" BorderThickness="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Custom Title Bar -->
+                <Border Grid.Row="0" Background="#252525" CornerRadius="5,5,0,0" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown" Height="30">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="_" Width="30" Click="Minimize_Click" Style="{x:Null}"/>
+                        <Button Content="[ ]" Width="30" Click="Maximize_Click" Style="{x:Null}"/>
+                        <Button Content="X" Width="30" Click="Close_Click" Style="{x:Null}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Visual Content -->
+                <ContentControl Grid.Row="1">
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <TextBlock Text="No preset selected or preset not found." Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedPreset}" Value="Particles">
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <controls:ParticlesVisual/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

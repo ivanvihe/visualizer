@@ -1,0 +1,129 @@
+using AudioVisualizer.Model;
+using AudioVisualizer.ViewModels;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using System.Windows.Threading;
+
+namespace AudioVisualizer.Controls
+{
+    public partial class ParticlesVisual : UserControl
+    {
+        private DispatcherTimer _timer;
+        private List<Particle> _particles = new List<Particle>();
+        private Random _random = new Random();
+        private AppViewModel? _viewModel;
+
+        public ParticlesVisual()
+        {
+            InitializeComponent();
+        }
+
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            _viewModel = DataContext as AppViewModel;
+            if (_viewModel == null) return;
+
+            _viewModel.PropertyChanged += (s, a) =>
+            {
+                if (a.PropertyName == nameof(AppViewModel.ParticleCount))
+                {
+                    InitializeParticles();
+                }
+            };
+
+            InitializeParticles();
+
+            _timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(1000.0 / 60.0) // 60 FPS
+            };
+            _timer.Tick += Timer_Tick;
+            _timer.Start();
+        }
+
+        private void InitializeParticles()
+        {
+            if (_viewModel == null) return;
+
+            _particles.Clear();
+            for (int i = 0; i < _viewModel.ParticleCount; i++)
+            {
+                _particles.Add(new Particle(
+                    new Point(_random.NextDouble() * ParticleCanvas.ActualWidth, _random.NextDouble() * ParticleCanvas.ActualHeight),
+                    _random
+                ));
+            }
+        }
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            if (_viewModel == null || ActualWidth == 0) return;
+
+            // Simple reaction to Gain and BPM
+            double reactivity = _viewModel.Gain * (_viewModel.Bpm / 120.0);
+
+            ParticleCanvas.Children.Clear();
+
+            foreach (var p in _particles)
+            {
+                p.Update(new Size(ParticleCanvas.ActualWidth, ParticleCanvas.ActualHeight), _viewModel.ParticleSpeed, reactivity);
+
+                Shape shape = CreateShapeForParticle(p, _viewModel.SelectedParticleShape, _viewModel.ParticleSize);
+                Canvas.SetLeft(shape, p.Position.X);
+                Canvas.SetTop(shape, p.Position.Y);
+                ParticleCanvas.Children.Add(shape);
+            }
+        }
+
+        private Shape CreateShapeForParticle(Particle p, ParticleShape shapeType, double size)
+        {
+            Shape shape;
+            switch (shapeType)
+            {
+                case ParticleShape.Circle:
+                    shape = new Ellipse { Width = size, Height = size };
+                    break;
+                case ParticleShape.Star:
+                    shape = new Polygon { Points = CreateStarPoints(5, size / 2, size / 4) };
+                    break;
+                case ParticleShape.Hexagon:
+                    shape = new Polygon { Points = CreatePolygonPoints(6, size / 2) };
+                    break;
+                default:
+                    shape = new Rectangle { Width = size, Height = size };
+                    break;
+            }
+            shape.Fill = new SolidColorBrush(p.Color);
+            return shape;
+        }
+
+        private PointCollection CreatePolygonPoints(int sides, double radius)
+        {
+            var points = new PointCollection();
+            double angleStep = 2 * Math.PI / sides;
+            for (int i = 0; i < sides; i++)
+            {
+                double angle = i * angleStep;
+                points.Add(new Point(radius * Math.Cos(angle), radius * Math.Sin(angle)));
+            }
+            return points;
+        }
+
+        private PointCollection CreateStarPoints(int numPoints, double outerRadius, double innerRadius)
+        {
+            var points = new PointCollection();
+            double angleStep = Math.PI / numPoints;
+            for (int i = 0; i < 2 * numPoints; i++)
+            {
+                double r = (i % 2 == 0) ? outerRadius : innerRadius;
+                double angle = i * angleStep;
+                points.Add(new Point(r * Math.Cos(angle), r * Math.Sin(angle)));
+            }
+            return points;
+        }
+    }
+}

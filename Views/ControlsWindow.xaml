@@ -1,0 +1,86 @@
+<Window x:Class="AudioVisualizer.Views.ControlsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AudioVisualizer.Views"
+        mc:Ignorable="d"
+        Title="Visualizer Controls" Height="450" Width="350"
+        SourceInitialized="Window_SourceInitialized" Closing="Window_Closing">
+    <Grid Margin="10">
+        <TabControl>
+            <TabItem Header="Session">
+                <StackPanel Margin="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="Gain" Grid.Column="0"/>
+                        <Slider Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding Gain, Mode=TwoWay}"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="Smoothing" Grid.Column="0"/>
+                        <Slider Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding Smoothing, Mode=TwoWay}"/>
+                    </Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="BPM" Grid.Column="0"/>
+                        <Slider Grid.Column="1" Minimum="60" Maximum="240" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding Bpm, Mode=TwoWay}"/>
+                    </Grid>
+                    <CheckBox Content="Always On Top" IsChecked="{Binding AlwaysOnTop, Mode=TwoWay}" Margin="0,10,0,0"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="MIDI">
+                <StackPanel Margin="10">
+                    <Label Content="MIDI Controller"/>
+                    <ComboBox ItemsSource="{Binding MidiControllers}" SelectedItem="{Binding SelectedMidiController, Mode=TwoWay}"/>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Visuals">
+                <StackPanel Margin="10">
+                    <Label Content="Preset"/>
+                    <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset, Mode=TwoWay}"/>
+                    
+                    <GroupBox Header="Particle Settings" Margin="0,10,0,0">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Count" Grid.Column="0"/>
+                                <Slider Grid.Column="1" Minimum="10" Maximum="1000" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding ParticleCount, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Size" Grid.Column="0"/>
+                                <Slider Grid.Column="1" Minimum="1" Maximum="50" Value="{Binding ParticleSize, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Speed" Grid.Column="0"/>
+                                <Slider Grid.Column="1" Minimum="0.1" Maximum="10" Value="{Binding ParticleSpeed, Mode=TwoWay}"/>
+                            </Grid>
+                            <Label Content="Shape"/>
+                            <ComboBox ItemsSource="{Binding ParticleShapes}" SelectedItem="{Binding SelectedParticleShape, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
