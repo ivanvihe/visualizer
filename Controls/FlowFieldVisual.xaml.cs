@@ -11,14 +11,22 @@ using System.Windows.Threading;
 
 namespace AudioVisualizer.Controls
 {
-    public partial class ParticlesVisual : UserControl
+    public partial class FlowFieldVisual : UserControl
     {
         private DispatcherTimer? _timer;
         private List<Particle> _particles = new List<Particle>();
         private Random _random = new Random();
         private AppViewModel? _viewModel;
 
-        public ParticlesVisual()
+        // Simple Perlin noise simulation (for demonstration)
+        private double GetNoise(double x, double y, double z)
+        {
+            // In a real scenario, you'd use a proper Perlin noise library.
+            // This is a very basic, non-optimized placeholder.
+            return (Math.Sin(x * 0.1 + z) + Math.Cos(y * 0.1 + z)) / 2.0;
+        }
+
+        public FlowFieldVisual()
         {
             InitializeComponent();
             SizeChanged += OnSizeChanged;
@@ -36,7 +44,8 @@ namespace AudioVisualizer.Controls
 
             _viewModel.PropertyChanged += (s, a) =>
             {
-                if (a.PropertyName == nameof(AppViewModel.ParticleCount))
+                if (a.PropertyName == nameof(AppViewModel.ParticleCount) ||
+                    a.PropertyName == nameof(AppViewModel.FlowFieldStrength))
                 {
                     InitializeParticles();
                 }
@@ -76,17 +85,25 @@ namespace AudioVisualizer.Controls
                 reactivity = _viewModel.SpectrumData.Sum() * _viewModel.Gain;
             }
 
-            ParticleCanvas.Children.Clear();
+            FlowCanvas.Children.Clear();
 
             foreach (var p in _particles)
             {
+                // Calculate flow vector based on noise
+                double angle = GetNoise(p.Position.X / 100.0, p.Position.Y / 100.0, Environment.TickCount / 1000.0) * Math.PI * 2;
+                Vector flowVector = new Vector(Math.Cos(angle), Math.Sin(angle));
+
+                // Apply flow and reactivity
+                p.Velocity = (p.Velocity * (1 - _viewModel.FlowFieldStrength)) + (flowVector * _viewModel.FlowFieldStrength);
+                p.Velocity.Normalize(); // Keep magnitude consistent
+
                 p.Update(new Size(ActualWidth, ActualHeight), _viewModel.ParticleSpeed, reactivity);
 
                 double size = _viewModel.ParticleSize + (reactivity * 50);
                 Shape shape = CreateShapeForParticle(p, _viewModel.SelectedParticleShape, size);
                 Canvas.SetLeft(shape, p.Position.X);
                 Canvas.SetTop(shape, p.Position.Y);
-                ParticleCanvas.Children.Add(shape);
+                FlowCanvas.Children.Add(shape);
             }
         }
 

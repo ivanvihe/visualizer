@@ -1,9 +1,7 @@
 <Application x:Class="AudioVisualizer.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:AudioVisualizer"
-             Startup="Application_Startup"
-             Shutdown="Application_Shutdown">
+             xmlns:local="clr-namespace:AudioVisualizer">
     <Application.Resources>
         <ResourceDictionary>
             <Style TargetType="Window">

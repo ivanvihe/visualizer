@@ -11,11 +11,9 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         SourceInitialized="Window_SourceInitialized" Closing="Window_Closing"
         Topmost="{Binding AlwaysOnTop}">
-    <Window.DataContext>
-        <vm:AppViewModel/>
-    </Window.DataContext>
+    
     <Grid>
-        <Border Background="#FF101010" CornerRadius="5" BorderBrush="#FF444" BorderThickness="1">
+        <Border Background="#FF101010" CornerRadius="5" BorderBrush="#FF444444" BorderThickness="1">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -32,28 +30,107 @@
                 </Border>
 
                 <!-- Visual Content -->
-                <ContentControl Grid.Row="1">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="ContentTemplate">
-                                <Setter.Value>
-                                    <DataTemplate>
-                                        <TextBlock Text="No preset selected or preset not found." Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </DataTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedPreset}" Value="Particles">
-                                    <Setter Property="Content">
-                                        <Setter.Value>
-                                            <controls:ParticlesVisual/>
-                                        </Setter.Value>
-                                    </Setter>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                </ContentControl>
+                <Grid Grid.Row="1">
+                    <TextBlock Text="No preset selected or preset not found." Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Particles">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Flow Field">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Audio Grid">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Wave Pattern">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="OpenGL Visual">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Veldrid Visual">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <controls:ParticlesVisual>
+                        <controls:ParticlesVisual.Style>
+                            <Style TargetType="controls:ParticlesVisual">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Particles">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:ParticlesVisual.Style>
+                    </controls:ParticlesVisual>
+                    <controls:FlowFieldVisual>
+                        <controls:FlowFieldVisual.Style>
+                            <Style TargetType="controls:FlowFieldVisual">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Flow Field">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:FlowFieldVisual.Style>
+                    </controls:FlowFieldVisual>
+                    <controls:AudioGridVisual>
+                        <controls:AudioGridVisual.Style>
+                            <Style TargetType="controls:AudioGridVisual">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Audio Grid">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:AudioGridVisual.Style>
+                    </controls:AudioGridVisual>
+                    <controls:WavePatternVisual>
+                        <controls:WavePatternVisual.Style>
+                            <Style TargetType="controls:WavePatternVisual">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Wave Pattern">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:WavePatternVisual.Style>
+                    </controls:WavePatternVisual>
+                    <controls:OpenGLVisual>
+                        <controls:OpenGLVisual.Style>
+                            <Style TargetType="controls:OpenGLVisual">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="OpenGL Visual">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:OpenGLVisual.Style>
+                    </controls:OpenGLVisual>
+                    <controls:VeldridVisual>
+                        <controls:VeldridVisual.Style>
+                            <Style TargetType="controls:VeldridVisual">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Veldrid Visual">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </controls:VeldridVisual.Style>
+                    </controls:VeldridVisual>
+                </Grid>
             </Grid>
         </Border>
     </Grid>

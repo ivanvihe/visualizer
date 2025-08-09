@@ -49,7 +49,18 @@
                     <Label Content="Preset"/>
                     <ComboBox ItemsSource="{Binding Presets}" SelectedItem="{Binding SelectedPreset, Mode=TwoWay}"/>
                     
+                    <!-- Particle Settings -->
                     <GroupBox Header="Particle Settings" Margin="0,10,0,0">
+                        <GroupBox.Style>
+                            <Style TargetType="GroupBox">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Particles">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </GroupBox.Style>
                         <StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -77,6 +88,94 @@
                             </Grid>
                             <Label Content="Shape"/>
                             <ComboBox ItemsSource="{Binding ParticleShapes}" SelectedItem="{Binding SelectedParticleShape, Mode=TwoWay}"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Flow Field Settings -->
+                    <GroupBox Header="Flow Field Settings" Margin="0,10,0,0">
+                        <GroupBox.Style>
+                            <Style TargetType="GroupBox">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Flow Field">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </GroupBox.Style>
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Strength" Grid.Column="0"/>
+                                <Slider Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding FlowFieldStrength, Mode=TwoWay}"/>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Audio Grid Settings -->
+                    <GroupBox Header="Audio Grid Settings" Margin="0,10,0,0">
+                        <GroupBox.Style>
+                            <Style TargetType="GroupBox">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Audio Grid">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </GroupBox.Style>
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Grid Size" Grid.Column="0"/>
+                                <Slider Grid.Column="1" Minimum="5" Maximum="50" IsSnapToTickEnabled="True" TickFrequency="1" Value="{Binding GridSize, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Reactivity" Grid.Column="0"/>
+                                <Slider Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding GridReactivity, Mode=TwoWay}"/>
+                            </Grid>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Wave Pattern Settings -->
+                    <GroupBox Header="Wave Pattern Settings" Margin="0,10,0,0">
+                        <GroupBox.Style>
+                            <Style TargetType="GroupBox">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedPreset}" Value="Wave Pattern">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </GroupBox.Style>
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Amplitude" Grid.Column="0"/>
+                                <Slider Grid.Column="1" Minimum="10" Maximum="200" Value="{Binding WaveAmplitude, Mode=TwoWay}"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Content="Frequency" Grid.Column="0"/>
+                                <Slider Grid.Column="1" Minimum="0.01" Maximum="0.2" Value="{Binding WaveFrequency, Mode=TwoWay}"/>
+                            </Grid>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
